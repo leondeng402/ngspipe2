@@ -14,8 +14,25 @@ import argparse
 import pandas as pd
 import config, ino
 #import config, gene, variant, region, operation
-
-def main(args):   
+    
+def main():   
+    #####################################################################
+    #    handle command line arguments
+    #####################################################################
+    parser = argparse.ArgumentParser(description='Annotate Next Generation ' \
+                                     + 'Sequence file')
+    parser.add_argument('-e', action='store_true', help='expanding gene ' \
+                        + 'entries')
+    parser.add_argument('-i', nargs='?', help='input file')
+    parser.add_argument('-m', action='store_true', help='merge gene info ' \
+                    + 'from refgene, knowngene, and ensgene')
+    parser.add_argument('-o', nargs='?', help='output directory')
+    parser.add_argument('-r', action='store_true', help='delete temporary '\
+                        +'files')
+    parser.add_argument('-t', action='store_true', help='timing each '\
+                        +'operation')
+    parser.add_argument('-p', nargs='?', help='pedigree file')
+    args=parser.parse_args()
     # Validate the arguments
     if(args.i == None):
         print('Error: -i is required')
@@ -26,9 +43,12 @@ def main(args):
     if(args.o!= None and not os.path.isdir(args.o)):
         print('Error: Directory ' + args.o + ' does not exist.')
         exit()
-    infile = args.i
+    annotate(args.e, args.i, args.m, args.o, args.r, args.t, args.p)
+        
+def annotate(args_e, args_i, args_m, args_o, args_r, args_t, args_p):
+    infile = args_i
     # time the process
-    if(args.t):
+    if(args_t):
         start_time = time.time()
     # Two types of input file: txt and vcf
     print('\n**************************************************************')
@@ -76,9 +96,10 @@ def main(args):
         avinput = infile
     else:
         print('Error: input file has a wrong format')
+        return None
     
     # time the process
-    if(args.t):
+    if(args_t):
         end_time = time.time()
         print('Time consumed: ', \
               time.strftime('%H:%M:%S', time.gmtime(end_time-start_time)))
@@ -97,7 +118,7 @@ def main(args):
             + ' -nastring ' + config.nastring \
             + ' -csvout'
    
-    if(args.r):
+    if(args_r):
         md_str=md_str + ' -remove'
         #print(md_str)
     cmd = shlex.split(md_str)
@@ -109,34 +130,16 @@ def main(args):
     df = df.fillna(config.nastring)
     print(df.iloc[0:5])
     # time the process
-    if(args.t):
+    if(args_t):
         end_time = time.time()
         print('Time consumed: ', \
               time.strftime('%H:%M:%S', time.gmtime(end_time-start_time)))
         start_time = time.time()
-    return 0
+    return df
 
 
 if __name__ == '__main__':
-    #####################################################################
-    #    handle command line arguments
-    #####################################################################
-    parser = argparse.ArgumentParser(description='Annotate Next Generation ' \
-                                     + 'Sequence file')
-    parser.add_argument('-e', action='store_true', help='expanding gene ' \
-                        + 'entries')
-    parser.add_argument('-i', nargs='?', help='input file')
-    parser.add_argument('-m', action='store_true', help='merge gene info ' \
-                    + 'from refgene, knowngene, and ensgene')
-    parser.add_argument('-o', nargs='?', help='output directory')
-    parser.add_argument('-r', action='store_true', help='delete temporary '\
-                        +'files')
-    parser.add_argument('-t', action='store_true', help='timing each '\
-                        +'operation')
-    parser.add_argument('-p', nargs='?', help='pedigree file')
+    main()
 
-    arguments=parser.parse_args()
-    
-    main(arguments)
     
     
