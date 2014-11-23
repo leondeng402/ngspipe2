@@ -46,9 +46,9 @@ clinvar='clinvar_20140929'
 cosmic='cosmic70'
 nci='nci60'
 # esp allele frequency
-esp='esp6500si_all'
+esp='esp6500si'
 esp_drp_suffix='_dropped'
-esp_flt_suffix='.sites.2014_09_filtered'
+esp_flt_suffix='_filtered'
 esp_races=['all', 'aa', 'ea']
 esp_header=['Label', 'Value', 'Chr', 'Start', 'End', 'Ref', 'Alt']
 esp_use_header = [esp.upper() + '_' + esp_races[0].upper(), \
@@ -73,12 +73,23 @@ g1k_use_header = [g1k.upper() + '_' + g1k_races[0].upper(), \
 
 
 # cadd raw score and phred score
-cadd='caddgt10'
+cadd='caddgt20'
 cadd_header = ['Label','CADD_raw', 'CADD_phred', 'Chr', 'Start', 'End', \
                'Ref', 'Alt']
 cadd_use_header = cadd_header[1:]
 cadd_drp_suffix='_'+cadd+'_dropped'
 cadd_flt_suffix='_'+cadd+'_filtered'
+# hgmd database configuration
+hgmd_file= '/home/leon/lab/hgmd/hgmd_pro.allmut.txt'
+hgmd_header = ['HGMD_Disease', 'HGMD_Gene', 'Chrom', 'HGMD_Genename', 'gdbid', 
+               'Omimid', 'Amino', 'Deletion', 'Insertion', 'HGMD_Codon', 
+               'CodonAff', 'Descr','Hgvs', 'HGMD_hgvsAll', 'dbsnp', 'Chr', 'Start', 
+              'End', 'Tag', 'Author', 'HGMD_Magzine', 'Allname', 'Vol', 
+              'Page', 'HGMD_PublishYear', 'HGMD_PMID', 'Reftag', 'Comments', 'ACC_NUM', 
+              'New_date',  'Base']
+hgmd_use_header = ['Chr', 'Start', 'End', 'HGMD_Disease', 'HGMD_Gene', \
+                   'HGMD_Genename', 'HGMD_hgvsAll', 'HGMD_Codon', 'HGMD_PMID',\
+                   'HGMD_Magzine', 'HGMD_PublishYear']
 #####################################################################
 #  table_annovar: protocols, operations
 #####################################################################                     
@@ -108,7 +119,21 @@ tblanno_header=['Chr', 'Start', 'End', 'Ref', 'Alt', \
                 'RadialSVM_pred', \
                 'LR_score', 'LR_pred', 'GERP++', 'PhyloP', 'SiPhy', \
                 'clinvar_20140929', 'cosmic70', 'nci60']
-
-
-
-
+#####################################################################
+#  merge gene entry info
+#####################################################################  
+gene_header = ['VariantFunction', 'Gene', 'GeneDetail', 'ExonicFunction', \
+               'AAChange', 'VariantFunction.k', 'Gene.k', 'GeneDetail.k', \
+               'ExonicFunction.k', 'AAChange.k', 'VariantFunction.e', \
+               'Gene.e', 'GeneDetail.e', 'ExonicFunction.e', 'AAChange.e']
+region_header = ['CytoBand', 'GenomicSuperDups', 'GwasCatalog']
+ljb_pred_header=['LJB23_SIFT_pred', 'LJB23_Polyphen2_HDIV_pred', \
+                 'LJB23_Polyphen2_HVAR_pred', 'LJB23_LRT_pred', \
+                 'LJB23_MutationTaster_pred', 'LJB23_MutationAssessor_pred', \
+                 'LJB23_FATHMM_pred', 'LJB23_RadialSVM_pred', 'LJB23_LR_pred',\
+                 'LJB23_GERP++', 'LJB23_PhyloP', 'LJB23_SiPhy']
+allele_frequency_header =  g1k_use_header + esp_use_header
+other_filter_header = ['clinvar_20140929', 'cosmic70', 'nci60']    
+merged_custom_header = basic_header + refgene_header + region_header \
+                + ['dbsnp138'] + allele_frequency_header + ljb_pred_header \
+                + cadd_header[1:3] + other_filter_header + hgmd_use_header[3:] 
