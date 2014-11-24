@@ -1,0 +1,50 @@
+--------------------
+README for ngspipe2
+--------------------
+
+--------
+Files:
+--------
+1. ngspipe_annotate.py: annotating program
+2. ngspipe_filter.py: preliminary filtering program
+3. ngspipe_rank.py: variants ranking program
+4. im_filter.py: inheritance model filtering program
+5. ngspipe2.py: next generation pipeline program
+
+-------------
+Dependency:
+-------------
+1. python3.4 is installed
+2. perl is installed and needed by annovar
+3. Annovar is installed and should be on the system $PATH 
+4. All database files are downloaded to annovar default folder
+
+
+--------
+Usage:
+--------
+1. To get help: 
+	python3.4 ngspipe2.py -h
+	python3.4 ngspipe_annotate.py -h
+	python3.4 ngspipe_filter.py -h
+	python3.4 ngspipe_rank.py -h
+	python3.4 im_filter.py -h
+	
+2. To annotate either vcf files or standard annovar input files:
+	python3.4 ngspipe_annotate.py -i input.vcf -o output_dir
+	
+3. To filter annotated files:
+	python3.4 ngspipe_filter.py -i input.antd -o output_dir
+	
+4. To rank variants in prelimary filted files:
+	python3.4 ngspipe_rank -i input.fltd -o output_dir
+	
+5. To filter annotated files using inheritance models
+	python3.4 im_filter.py -i input.fltd -o output_dir -p pedigree.txt
+
+---------------
+Known Issues:
+---------------
+1. Annovar expand variants with multiple alternative alleles while gatk keeps 
+those variants in one line
+2. The pedigree file must contain the exactly same SubjectIDs in the start vcf file.

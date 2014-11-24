@@ -10,9 +10,9 @@ import pandas as pd
 import config
 # All functions organized in alphabetic order
 
-def get_genotype(input, ids): #return a DataFrame
+def get_genotype(inputfile, ids): #return a DataFrame
     results=[]
-    with open(input, 'r')as f:        
+    with open(inputfile, 'r')as f:        
         for line in f.readlines():
             line = line.strip()    
             words=line.split('\t')
@@ -29,9 +29,9 @@ def get_genotype(input, ids): #return a DataFrame
     #                           dtype='str')
     return genotype_df
     
-def get_sampleid(input): #return a list
+def get_sampleid(inputfile): #return a list
     sampleids=None
-    with open(input, 'r')as f:        
+    with open(inputfile, 'r')as f:        
         for line in f.readlines():
             line = line.strip()    
             if(line.startswith('#CHROM')):            

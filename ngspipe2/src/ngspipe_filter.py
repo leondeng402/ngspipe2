@@ -17,8 +17,9 @@ def main():
     #####################################################################
     #    handle command line arguments
     #####################################################################
-    parser = argparse.ArgumentParser(description='Annotate Next Generation ' \
-                                     + 'Sequence file')
+    parser = argparse.ArgumentParser(description='Preliminarily filter ' \
+                                     + 'annotated next generation sequencing '\
+                                     'data')
     parser.add_argument('-i', nargs='?', help='input file')
     parser.add_argument('-o', nargs='?', help='output directory')
     parser.add_argument('-f', nargs='?', help='filter file')
@@ -32,12 +33,14 @@ def main():
     if(not args.i.endswith('.antd')):
         print('Error: file format should be .antd')
         exit()
+    if(args.o!= None and not os.path.isdir(args.o)):
+        print('Error: Directory ' + args.o + ' does not exist.')
+        exit()
     flt_df = prelimfilter(args.i, args.f)
     
     if(len(flt_df.index) != 0):
-        infile_dir = os.path.dirname(args.i)
         infile_base = os.path.basename(args.i)
-        outfile = infile_dir +'/' + infile_base.replace('.antd', '.fltd')
+        outfile = args.o +'/' + infile_base.replace('.antd', '.fltd')
         flt_df.to_csv(outfile, header=True, index=False, sep='\t')
     else:
         print('No variatns left after filtering')

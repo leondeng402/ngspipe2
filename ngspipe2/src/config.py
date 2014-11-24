@@ -137,3 +137,8 @@ other_filter_header = ['clinvar_20140929', 'cosmic70', 'nci60']
 merged_custom_header = basic_header + refgene_header + region_header \
                 + ['dbsnp138'] + allele_frequency_header + ljb_pred_header \
                 + cadd_header[1:3] + other_filter_header + hgmd_use_header[3:] 
+#####################################################################
+#  inheritance model filtering
+#####################################################################  
+denovo_maf=0.001
+ar_maf=0.005
