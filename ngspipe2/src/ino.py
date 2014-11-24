@@ -25,8 +25,6 @@ def get_genotype(inputfile, ids): #return a DataFrame
             results.append(variant+row)
     header = config.basic_header + config.vcf_basic_header + ids 
     genotype_df = pd.DataFrame(results,  columns=header)
-    #genotype_df = pd.DataFrame(results, index=None, columns=header, \
-    #                           dtype='str')
     return genotype_df
     
 def get_sampleid(inputfile): #return a list

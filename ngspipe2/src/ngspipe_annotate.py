@@ -12,7 +12,7 @@ import os, time, subprocess, shlex
 import argparse
 import pandas as pd
 import config, ino, gene, variant
-#import config, gene, region, operation
+
     
 def main():   
     #####################################################################
@@ -120,7 +120,6 @@ def annotate(args_e, args_i, args_m, args_o, args_p, args_r, args_t):
    
     if(args_r):
         md_str=md_str + ' -remove'
-        #print(md_str)
     cmd = shlex.split(md_str)
     subprocess.call(cmd)
     result = avinput+'.'+config.buildver + config.tblanno_suffix

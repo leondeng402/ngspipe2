@@ -29,7 +29,6 @@ def expand_gene_entries(dataframe):
         aa_change_piece = row['AAChange'].strip().split(',')
         for gene_item in gene_piece:
             for aa_item in aa_change_piece:
-                #print('gene: ', gene_piece)
                 temp_row=pd.Series(row.values.copy(), index=row.index, \
                                    name=row.name)
                 temp_row['Gene'] = gene_item
@@ -40,12 +39,9 @@ def expand_gene_entries(dataframe):
 
 def merge_gene_entries(dataframe): # return a DataFrame
     #  refgene query, save known to gene_df and unknown to unknown_df
-    #headers = config.merged_custom_header
     headers = list(dataframe.columns.values)
-    #print(headers)
     # remove the knowngene and ensgene headers
     for item in config.knowngene_header + config.ensgene_header:
-        #print(item)
         headers.remove(item)
     if(  config.refgene_header[0] not in headers):
         print('Error: refGene annotation is not in')
@@ -63,9 +59,6 @@ def merge_gene_entries(dataframe): # return a DataFrame
         temp_row = temp_row[headers]        
         if(row['VariantFunction'] != row['VariantFunction.k'] \
            or row['ExonicFunction'] != row['ExonicFunction.k']) :
-            #print('refGene & knownGene info is not the same')
-            #print(temp_row['Chr'], temp_row['Start'], temp_row['End'], \
-            #      temp_row['Ref'], temp_row['Alt'])
             temp_row['VariantFunction'] = row['VariantFunction.k']
             temp_row['Gene'] = row['Gene.k']
             temp_row['GeneDetail'] = row['GeneDetail.k']
@@ -78,9 +71,6 @@ def merge_gene_entries(dataframe): # return a DataFrame
         temp_row = temp_row[headers]       
         if(row['VariantFunction'] != row['VariantFunction.e'] \
            or row['ExonicFunction'] != row['ExonicFunction.e']):
-            #print('refGene & ensGene info is not the same')
-            #print(temp_row['Chr'], temp_row['Start'], temp_row['End'], \
-            #      temp_row['Ref'], temp_row['Alt'])
             temp_row['VariantFunction'] = row['VariantFunction.e']
             temp_row['Gene'] = row['Gene.e']
             temp_row['GeneDetail'] = row['GeneDetail.e']

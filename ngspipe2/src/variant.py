@@ -70,13 +70,10 @@ def fetch_g1k(inputfile, race, fieldnum, vflag, rflag): # return DataFrame
     subprocess.call(cmd)
     result = inputfile+'.'+config.buildver+'_' + race.upper() \
              + config.g1k_drp_suffix
-    #print(result)
     if(vflag or fieldnum==5):
         header = config.g1k_header
     else:
         header = config.g1k_header[:2] + config.txtinput_header
-    #print(result)
-    #print(header)   
     g1k_df = pd.read_csv(result, header=None, names=header, \
                              sep='\t', usecols=header[1:],\
                              low_memory=False)
@@ -91,11 +88,11 @@ def fetch_g1k(inputfile, race, fieldnum, vflag, rflag): # return DataFrame
         g1k_df = pd.DataFrame(columns=config.g1k_header[1:])
         g1k_df = g1k_df.rename(columns={'Value': config.g1k.upper() + '_' \
                                         + race.upper()})
-    #print(g1k_df)
+
     if 'Comments' in g1k_df:
         g1k_df= g1k_df.drop('Comments', axis=1)
     g1k_df[config.basic_header] = g1k_df[config.basic_header].astype(str)
-    #print(g1k_df.columns.values)
+
     return g1k_df
 
 def fetch_esp(inputfile, race, fieldnum, vflag, rflag): # return DataFrame    
@@ -115,8 +112,7 @@ def fetch_esp(inputfile, race, fieldnum, vflag, rflag): # return DataFrame
         header = config.esp_header
     else:
         header = config.esp_header[:2] + config.txtinput_header
-    #print(result)
-    #print(header)   
+  
     esp_df = pd.read_csv(result, header=None, names=header, \
                              sep='\t', usecols=header[1:],\
                              low_memory=False)
@@ -131,9 +127,9 @@ def fetch_esp(inputfile, race, fieldnum, vflag, rflag): # return DataFrame
         esp_df = pd.DataFrame(columns=config.esp_header[1:])
         esp_df = esp_df.rename(columns={'Value': config.esp + '_' \
                                         + race})
-    #print(g1k_df)
+
     if 'Comments' in esp_df:
         esp_df= esp_df.drop('Comments', axis=1)
     esp_df[config.basic_header] = esp_df[config.basic_header].astype(str)
-    #print(g1k_df.columns.values)
+    
     return esp_df

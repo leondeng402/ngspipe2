@@ -73,7 +73,7 @@ g1k_use_header = [g1k.upper() + '_' + g1k_races[0].upper(), \
 
 
 # cadd raw score and phred score
-cadd='caddgt20'
+cadd='caddgt10'
 cadd_header = ['Label','CADD_raw', 'CADD_phred', 'Chr', 'Start', 'End', \
                'Ref', 'Alt']
 cadd_use_header = cadd_header[1:]
@@ -127,11 +127,11 @@ gene_header = ['VariantFunction', 'Gene', 'GeneDetail', 'ExonicFunction', \
                'ExonicFunction.k', 'AAChange.k', 'VariantFunction.e', \
                'Gene.e', 'GeneDetail.e', 'ExonicFunction.e', 'AAChange.e']
 region_header = ['CytoBand', 'GenomicSuperDups', 'GwasCatalog']
-ljb_pred_header=['LJB23_SIFT_pred', 'LJB23_Polyphen2_HDIV_pred', \
-                 'LJB23_Polyphen2_HVAR_pred', 'LJB23_LRT_pred', \
-                 'LJB23_MutationTaster_pred', 'LJB23_MutationAssessor_pred', \
-                 'LJB23_FATHMM_pred', 'LJB23_RadialSVM_pred', 'LJB23_LR_pred',\
-                 'LJB23_GERP++', 'LJB23_PhyloP', 'LJB23_SiPhy']
+ljb_pred_header=['SIFT_pred', 'Polyphen2_HDIV_pred', \
+                 'Polyphen2_HVAR_pred', 'LRT_pred', \
+                 'MutationTaster_pred', 'MutationAssessor_pred', \
+                 'FATHMM_pred', 'RadialSVM_pred', 'LR_pred',\
+                 'GERP++', 'PhyloP', 'SiPhy']
 allele_frequency_header =  g1k_use_header + esp_use_header
 other_filter_header = ['clinvar_20140929', 'cosmic70', 'nci60']    
 merged_custom_header = basic_header + refgene_header + region_header \
@@ -142,3 +142,9 @@ merged_custom_header = basic_header + refgene_header + region_header \
 #####################################################################  
 denovo_maf=0.001
 ar_maf=0.005
+pathogenic_header = ['SIFT_pred', 'Polyphen2_HDIV_pred', \
+                        'Polyphen2_HVAR_pred', 'GERP++', 'CADD_phred']
+im_header = basic_header + refgene_header + region_header + pathogenic_header \
+            + vcf_basic_header 
+# other means families missing the proband 
+family_type=['singleton', 'duos', 'trios', 'families', 'other']
