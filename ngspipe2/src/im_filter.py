@@ -41,35 +41,14 @@ def main():
         exit()
     if(not args.o.endswith('/')):
         outdir = args.o + '/'
+    else:
+        outdir = args.o
     ## Validate pedigree file??
     # create variant dataframe and pedigree dataframe
     df = pd.read_csv(args.i, header=0, sep='\t', low_memory=False)
     ped_df = pd.read_csv(args.p, header=0, sep='\t', low_memory=False) 
-    # filter_by_model
-    if(args.m == 'DeNovo'):
-        print('DeNovo:')
-        # get the output directory and file
-        dn_outdir = outdir+'denovo/'
-        if (not os.path.exists(dn_outdir)):
-            os.mkdir(dn_outdir)
-        filter_by_denovo(df, ped_df, dn_outdir)
-    elif(args.m == 'Dominant'):
-        dm_outdir = outdir+'dominant/'
-        if (not os.path.exists(dm_outdir)):
-            os.mkdir(dm_outdir)
-        filter_by_dominant(df, ped_df, dm_outdir)
-    elif(args.m == 'Recessive'):
-        rc_outdir = outdir+'recessive/'
-        if (not os.path.exists(rc_outdir)):
-            os.mkdir(rc_outdir)
-        filter_by_recessive(df, ped_df, rc_outdir)
-        pass
-    elif(args.m == 'XR'):
-        pass
-    else:
-        print('Error: wrong inheritance model, model ' + args.m + ' is not ' \
-              +'in [DeNovo, AD, AR, XR]')
-        exit()
+    # decide the family category
+    filter_by_family(df, ped_df, outdir, args.m)
     
 def filter_by_dominant(ngsdf, peddf, outdir): 
     pass
@@ -88,7 +67,7 @@ def filter_by_recessive(ngsdf, peddf, outdir):
     # alt allele respectively
     
            
-def filter_by_denovo(ngsdf, peddf, outdir):    
+def filter_by_family(ngsdf, peddf, outdir, imodel):    
     # filter by maf
     ngsdf = ngspipe_filter.filter_by_maf(ngsdf, config.denovo_maf)
     
@@ -97,31 +76,91 @@ def filter_by_denovo(ngsdf, peddf, outdir):
     for pid in probandids:
         familyid = peddf[peddf.SampleID == pid].FamilyID.tolist()
         famdf = peddf[peddf.FamilyID.isin(familyid)]
+        
+        #print(familyid, famdf)
         family_size = len(famdf.index)
-        print('\n'+pid+': ', family_size)
+        print('\n'+familyid[0]+': ', family_size)
         if(family_size == 1):
             print('This is a singleton')
+            filter_singleton(famdf, peddf, outdir, imodel)
         elif(family_size == 2):
-            print('This is duos or sngtnfam')
+            personlist = famdf.Person.tolist()
+            if('Mother' in personlist or 'Fatehr' in personlist):
+                print('This is a duos')
+                filter_duos(famdf, peddf, outdir, imodel)
+            else:
+                print('This is sngtnfam')
+                filter_family_with_singleton(famdf, peddf, outdir, imodel)
             
         elif(family_size == 3):
-            print('This is trios, sngtnfam, duofam')
+            personlist = famdf.Person.tolist()
+            #print(personlist)
+            if(('Mother' in personlist) and ('Father' in personlist)):
+                print('This is a trios')
+                filter_trios(famdf, peddf, outdir, imodel)
+            elif(('Mother' in personlist) != ('Father' in personlist)):
+                print('This a duofam')
+                filter_family_with_duos(famdf, peddf, outdir, imodel)
+            else:
+                print('This is a sngtnfam')
+                filter_family_with_singleton(famdf, peddf, outdir, imodel)
+                
         elif(family_size >=4):
-            print('This is triofam, sngtnfam, duofam')
-        
+            personlist = famdf.Person.tolist()
+            if(('Mother' in personlist) and ('Father' in personlist)):
+                print('This is a triofam')
+                filter_family_with_trios(famdf, peddf, outdir, imodel)
+            elif(('Mother' in personlist) != ('Father' in personlist)):
+                print('This a duofam')
+                filter_family_with_duos(famdf, peddf, outdir, imodel)
+            else:
+                print('This is a sngtnfam')
+                filter_family_with_singleton(famdf, peddf, outdir, imodel)
     # filter by het in proband
     
     # filter by that alt allele in probnad doesn't exist in parents
     
-def filter_by_xr(ngsdf, peddf, outdir):
-    pass
-    
-    # filter by maf
-    
-    # 1. filter by homo alt alleles in proband and unaffected parents are het 
-    
-    # 2. filter by at least two hets in the same gene and parents carry each
-    # alt allele respectively
-
+def filter_singleton(ngsdf, peddf, outdir, imodel):
+    if(imodel == 'DeNovo'):
+        print('Filter singleton with DeNovo model ...')
+    elif(imodel == 'Dominant'):
+        print('Filter singleton with Dominant model ...')
+    elif(imodel == 'Recessive'):
+        print('Filter singleton with Recessive model ...')
+def filter_family_with_singleton(ngsdf, peddf, outdir, imodel):
+    if(imodel == 'DeNovo'):
+        print('Filter family with singleton with DeNovo model ...')
+    elif(imodel == 'Dominant'):
+        print('Filter family with singleton with Dominant model ...')
+    elif(imodel == 'Recessive'):
+        print('Filter family with singleton with Recessive model ...')
+def filter_duos(ngsdf, peddf, outdir, imodel):
+    if(imodel == 'DeNovo'):
+        print('Filter duos with DeNovo model ...')
+    elif(imodel == 'Dominant'):
+        print('Filter duos with Dominant model ...')
+    elif(imodel == 'Recessive'):
+        print('Filter duos with Recessive model ...')
+def filter_family_with_duos(ngsdf, peddf, outdir, imodel):
+    if(imodel == 'DeNovo'):
+        print('Filter family with duos with DeNovo model ...')
+    elif(imodel == 'Dominant'):
+        print('Filter family with duos with Dominant model ...')
+    elif(imodel == 'Recessive'):
+        print('Filter family with duos with Recessive model ...') 
+def filter_family_with_trios(ngsdf, peddf, outdir, imodel):
+    if(imodel == 'DeNovo'):
+        print('Filter family with trios with DeNovo model ...')
+    elif(imodel == 'Dominant'):
+        print('Filter family with trios with Dominant model ...')
+    elif(imodel == 'Recessive'):
+        print('Filter family with trios with Recessive model ...')      
+def filter_trios(ngsdf, peddf, outdir, imodel):
+    if(imodel == 'DeNovo'):
+        print('Filter trios with DeNovo model ...')
+    elif(imodel == 'Dominant'):
+        print('Filter trios with Dominant model ...')
+    elif(imodel == 'Recessive'):
+        print('Filter trios with Recessive model ...')   
 if __name__ == '__main__':
     main()
