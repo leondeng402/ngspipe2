@@ -141,10 +141,13 @@ merged_custom_header = basic_header + refgene_header + region_header \
 #  inheritance model filtering
 #####################################################################  
 denovo_maf=0.001
-ar_maf=0.005
+recessive_maf=0.005
+dominant_maf = 0.005
 pathogenic_header = ['SIFT_pred', 'Polyphen2_HDIV_pred', \
                         'Polyphen2_HVAR_pred', 'GERP++', 'CADD_phred']
 im_header = basic_header + refgene_header + region_header + pathogenic_header \
             + vcf_basic_header 
 # other means families missing the proband 
-family_type=['singleton', 'duos', 'trios', 'families', 'other']
+family_type=['singleton', 'duos', 'trios', 'singletonfams', 'duosfams', \
+             'triosfams']
+allele_num = 6

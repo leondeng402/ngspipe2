@@ -28,7 +28,7 @@ def main():
     parser.add_argument('-p', nargs='?', help='pedigree file')
     args=parser.parse_args()
     if(args.i == None or args.o == None or args.p == None):
-        print('Error: -i, -o and -f are required')
+        print('Error: -i, -o and -p are required')
         exit()
     if(not os.path.isfile(args.i)):
         print('Error: File ' + args.i + ' does not exist.')
@@ -40,14 +40,17 @@ def main():
         print('Error: Directory ' + args.o + ' does not exist.')
         exit()
     if(not args.o.endswith('/')):
-        outdir = args.o + '/'
+        outdir = args.o + '/' + 'imf'
     else:
-        outdir = args.o
+        outdir = args.o + 'imf'
     ## Validate pedigree file??
     # create variant dataframe and pedigree dataframe
-    df = pd.read_csv(args.i, header=0, sep='\t', low_memory=False)
-    ped_df = pd.read_csv(args.p, header=0, sep='\t', low_memory=False) 
+    df = pd.read_csv(args.i, header=0, sep='\t', dtype=str)
+    ped_df = pd.read_csv(args.p, header=0, sep='\t', dtype=str) 
     # decide the family category
+    print(outdir)
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
     filter_by_family(df, ped_df, outdir, args.m)
     
 def filter_by_dominant(ngsdf, peddf, outdir): 
@@ -69,8 +72,16 @@ def filter_by_recessive(ngsdf, peddf, outdir):
            
 def filter_by_family(ngsdf, peddf, outdir, imodel):    
     # filter by maf
-    ngsdf = ngspipe_filter.filter_by_maf(ngsdf, config.denovo_maf)
-    
+    if(imodel=='DeNovo'):
+        print('DeNovo model: Filter variants by maf = ', config.denovo_maf)
+        ngsdf = ngspipe_filter.filter_by_maf(ngsdf, config.denovo_maf)
+    elif(imodel=='Recessive'):
+        print('Recessive model: Filter variants by maf = ', \
+              config.recessive_maf)
+        ngsdf = ngspipe_filter.filter_by_maf(ngsdf, config.recessive_maf)
+    elif(imodel=='Dominant'):
+        print('Dominant model: Filter variants by maf = ', config.dominant_maf)
+        ngsdf = ngspipe_filter.filter_by_maf(ngsdf, config.dominant_maf)
     # decide singleton,duos, sngtnfam, trios, duofam, triofam, other
     probandids = peddf[peddf.Person=='Proband'].SampleID.tolist()
     for pid in probandids:
@@ -82,7 +93,7 @@ def filter_by_family(ngsdf, peddf, outdir, imodel):
         print('\n'+familyid[0]+': ', family_size)
         if(family_size == 1):
             print('This is a singleton')
-            filter_singleton(famdf, peddf, outdir, imodel)
+            filter_singleton(ngsdf, famdf, outdir, imodel)
         elif(family_size == 2):
             personlist = famdf.Person.tolist()
             if('Mother' in personlist or 'Fatehr' in personlist):
@@ -120,13 +131,40 @@ def filter_by_family(ngsdf, peddf, outdir, imodel):
     
     # filter by that alt allele in probnad doesn't exist in parents
     
-def filter_singleton(ngsdf, peddf, outdir, imodel):
+def filter_singleton(ngsdf, famdf, outdir, imodel):
     if(imodel == 'DeNovo'):
         print('Filter singleton with DeNovo model ...')
+        outdir = outdir + '/'+ imodel +'/singleton'
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+        sid = famdf.SampleID.tolist()[0]   
+        outfile = outdir + '/' + sid+'.imfd'
+             
+        singletondf = ngsdf[config.im_header+[sid]]
+        sngdf = singletondf.drop_duplicates(subset=config.vcf_basic_header)
+        
+        het_wm = generate_het_wm(config.allele_num)       
+        sngdf = sngdf[sngdf[sid].isin(het_wm)]
+        sngdf.to_csv(outfile, header=True, sep='\t', index=None)
+        
     elif(imodel == 'Dominant'):
         print('Filter singleton with Dominant model ...')
     elif(imodel == 'Recessive'):
         print('Filter singleton with Recessive model ...')
+        # find the homozygous or intrans based on vcf header
+        outdir = outdir + '/'+ imodel +'/singleton'
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+        sid = famdf.SampleID.tolist()[0]   
+        outfile = outdir + '/' + sid+'.imfd'
+             
+        singletondf = ngsdf[config.im_header+[sid]]
+        sngdf = singletondf.drop_duplicates(subset=config.vcf_basic_header)
+        
+        homo_mm = generate_homo_mm(config.allele_num)
+        sngdf = sngdf[sngdf[sid].isin(homo_mm)]
+        sngdf.to_csv(outfile, header=True, sep='\t', index=None)
+        
 def filter_family_with_singleton(ngsdf, peddf, outdir, imodel):
     if(imodel == 'DeNovo'):
         print('Filter family with singleton with DeNovo model ...')
@@ -162,5 +200,26 @@ def filter_trios(ngsdf, peddf, outdir, imodel):
         print('Filter trios with Dominant model ...')
     elif(imodel == 'Recessive'):
         print('Filter trios with Recessive model ...')   
+def generate_het_mm(allelenum): # return list
+    het_mm = []
+    for i in range(allelenum)[1:]:
+        k=i+1
+        for j in range(allelenum)[k:]:
+            het_mm.append(str(i)+'/'+str(j))
+            het_mm.append(str(i)+'|'+str(j))
+    return het_mm
+def generate_het_wm(allelenum):
+    i = 0
+    het_wm = []
+    for j in range(allelenum)[1:]:
+        het_wm.append(str(i)+'/'+str(j))
+        het_wm.append(str(i)+'|'+str(j))
+    return het_wm
+def generate_homo_mm(allelenum):
+    homo_mm=[]
+    for i in range(allelenum)[1:]:
+        homo_mm.append(str(i)+'/'+str(i))
+        homo_mm.append(str(i)+'|'+str(i))
+    return homo_mm
 if __name__ == '__main__':
     main()

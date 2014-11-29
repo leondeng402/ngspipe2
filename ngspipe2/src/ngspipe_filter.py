@@ -41,6 +41,7 @@ def main():
     if(len(flt_df.index) != 0):
         infile_base = os.path.basename(args.i)
         outfile = args.o +'/' + infile_base.replace('.antd', '.fltd')
+        
         flt_df.to_csv(outfile, header=True, index=False, sep='\t')
     else:
         print('No variatns left after filtering')
@@ -106,8 +107,10 @@ def prelimfilter(args_i, args_f): # return dataframe
     print('Start to filter nonsynoymous snv by pathogenicity ...')
     ns_snv_df=df[df['ExonicFunction']=='nonsynonymous SNV']
     rest_df=df[df['ExonicFunction']!='nonsynonymous SNV']    
-    ns_snv_filtered_df = filter_by_pathogenicity(ns_snv_df, pathogenic_params)    
+    ns_snv_filtered_df = filter_by_pathogenicity(ns_snv_df, pathogenic_params) 
+   
     df = rest_df.append(ns_snv_filtered_df, ignore_index=True)
+    #print(df)
         
     return df
 
@@ -115,7 +118,8 @@ def filter_by_ef(dataframe, eflist): # return DataFrame
     header=list(dataframe.columns.values)
     if(len(eflist) <= 0):
         return pd.DataFrame(columns=header)
-    temp_df = dataframe[dataframe.ExonicFunction.isin(eflist)]     
+    temp_df = dataframe[dataframe.ExonicFunction.isin(eflist)]
+   
     return temp_df
    
 def filter_by_maf(dataframe, maf): # return DataFrame
@@ -137,20 +141,26 @@ def filter_by_maf(dataframe, maf): # return DataFrame
 
 def filter_by_pathogenicity(dataframe, pathogenic_params):# return DataFrame
     header=list(dataframe.columns.values)
-    df = pd.DataFrame(columns=header)
+    df = pd.DataFrame(columns=header)    
     for key, value in pathogenic_params.items():           
         key=key.strip()
         value=value.strip()
         if('CADD' in key):                          
             temp_df = dataframe[dataframe[key]>=float(value)]  
-            dataframe = dataframe[dataframe[key]<float(value)]             
+            dataframe = dataframe[dataframe[key]<float(value)]   
+            #temp_df[header] = temp_df[header].astype(str)         
             df=df.append(temp_df, ignore_index=True)            
         else:
             # sift and polyphen2 
             temp_df = dataframe[dataframe[key]==value] 
             dataframe= dataframe[dataframe[key]!=value] 
-            df=df.append(temp_df, ignore_index=True)  
-    df[header]=df[header].astype(str)
+            #temp_df[header] = temp_df[header].astype(str)   
+            df=df.append(temp_df, ignore_index=True) 
+    
+    basic_header = config.basic_header[:3] + config.vcf_basic_header[:2]
+    for item in basic_header:
+        if df[item].dtype == 'float':
+            df[item]=df[item].astype(int) 
     return df      
     
 def filter_by_vf(dataframe, vflist): # return DataFrame
@@ -158,7 +168,8 @@ def filter_by_vf(dataframe, vflist): # return DataFrame
     header=list(dataframe.columns.values)
     if(len(vflist) <= 0):
         return pd.DataFrame(columns=header)
-    temp_df = dataframe[dataframe.VariantFunction.isin(vflist)]    
+    temp_df = dataframe[dataframe.VariantFunction.isin(vflist)]
+    #temp_df[header]=temp_df[header].astype(str)      
     return temp_df
 
 
